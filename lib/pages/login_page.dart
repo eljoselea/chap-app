@@ -1,7 +1,9 @@
+import 'package:chat/helpers/mostrar_alerta.dart';
 import 'package:chat/widgets/boton_azul.dart';
 import 'package:chat/widgets/custom_input.dart';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import '../services/auth_service.dart';
 import '../widgets/labels.dart';
 import '../widgets/logo.dart';
 
@@ -9,29 +11,31 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffF2F2F2),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+        backgroundColor: Color(0xffF2F2F2),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.9,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
                   Logo(titulo: 'Messenger'),
                   __Form(),
-                  Labels(ruta: 'register',titulo: 'No tienes una cuenta?', subtitulo: 'Crea una cuenta ahora!'),
+                  Labels(
+                    ruta: 'register',
+                    titulo: '¿No tienes cuenta?',
+                    subtitulo: 'Crea una ahora!',
+                  ),
                   Text(
-                    'Terms and conditions',
+                    'Términos y condiciones de uso',
                     style: TextStyle(fontWeight: FontWeight.w200),
                   )
                 ],
               ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }
 
@@ -46,6 +50,8 @@ class ___FormState extends State<__Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Container(
         margin: EdgeInsets.only(top: 40),
         padding: EdgeInsets.symmetric(horizontal: 50),
@@ -66,9 +72,25 @@ class ___FormState extends State<__Form> {
             //TODO crear boton
             BotonAzul(
                 text: 'Ingrese',
-                onPressed: () {
-                  print('emailCtrl.text');
-                  print(passCtrl.text);
+                onPressed: authService.autenticando ? null : () async {
+                  FocusScope.of(context).unfocus();
+                  //print(emailCtrl.text);
+                  //print(passCtrl.text);
+                  final loginOK = await authService.login(
+                      emailCtrl.text.trim(), passCtrl.text.trim());
+
+                  if ( loginOK){
+                    //TODO conectar a nuestro socket server
+                    //TODO: Navegar a otra pantalla
+                    Navigator.pushReplacementNamed(
+                      context, 'usuarios');
+
+                  } else {
+                    // Mostrar alerta
+                    mostrarAlerta(
+                      context, 'Login incorrexto', 'Revisen sus credenciales nuevamente');
+                  }
+
                 }),
           ],
         ));
