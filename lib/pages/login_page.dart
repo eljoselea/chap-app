@@ -1,4 +1,5 @@
 import 'package:chat/helpers/mostrar_alerta.dart';
+import 'package:chat/services/socket_service.dart';
 import 'package:chat/widgets/boton_azul.dart';
 import 'package:chat/widgets/custom_input.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +52,7 @@ class ___FormState extends State<__Form> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
 
     return Container(
         margin: EdgeInsets.only(top: 40),
@@ -80,8 +82,9 @@ class ___FormState extends State<__Form> {
                       emailCtrl.text.trim(), passCtrl.text.trim());
 
                   if ( loginOK){
-                    //TODO conectar a nuestro socket server
-                    //TODO: Navegar a otra pantalla
+                    //Conectar a nuestro socket server
+                    socketService.connect();
+                    //Navegar a otra pantalla
                     Navigator.pushReplacementNamed(
                       context, 'usuarios');
 
